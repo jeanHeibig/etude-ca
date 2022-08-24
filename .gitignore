@@ -128,5 +128,6 @@ dmypy.json
 # Pyre type checker
 .pyre/
 
-# Ignore test.csv file
+# Ignore test files
 test.csv
+test.ipynb
