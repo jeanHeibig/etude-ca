@@ -3,7 +3,11 @@ import pandas as pd
 import streamlit as st
 
 
-st.title("Etude du CA")
+# Set Streamlit config
+st.set_page_config(
+    page_title="Etude du CA",
+    page_icon=":bar_chart:",
+)
 
 uploaded_file = st.file_uploader("Choose a file", type="csv", accept_multiple_files=False, key=None, help=None, on_change=None, args=None, kwargs=None, disabled=False)
 
