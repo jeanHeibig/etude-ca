@@ -26,7 +26,7 @@ k = lambda x: [bool(x & (1 << y)) * 'd' + l for y, l in enumerate(ltr)]
 
 if uploaded_file is not None:
     # Can be used wherever a "file-like" object is accepted:
-    user_df = pd.read_csv("test.csv", index_col=("Year", "Reference", "Currency"))
+    user_df = pd.read_csv(uploaded_file, index_col=("Year", "Reference", "Currency"))
     st.dataframe(user_df)
 
     i, f = 2020, 2021
