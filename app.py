@@ -27,7 +27,10 @@ if (uploaded_file is not None) and (not(distinct_currencies) or (fx_file is not 
 
     user_df_by_year = lambda year: user_df[user_df.index.get_level_values('Year').isin([year])]
 
-    merged_start_and_end = pd.merge(user_df_by_year(start_year).droplevel("Year"), user_df_by_year(end_year).droplevel("Year"), 'outer', on=["Reference", "Currency"], suffixes=("", "_end"))
+    grouped_start = user_df_by_year(start_year).droplevel("Year").groupby(["Reference", "Currency"]).agg({"P": "mean", "Q": "sum"})
+    grouped_end = user_df_by_year(end_year).droplevel("Year").groupby(["Reference", "Currency"]).agg({"P": "mean", "Q": "sum"})
+    merged_start_and_end = pd.merge(grouped_start, grouped_end, 'outer', on=["Reference", "Currency"], suffixes=("", "_end"))
+
     if distinct_currencies:
         merged_currencies = pd.merge(merged_start_and_end, fx_rate.T[[start_year, end_year]], how="left", left_on="Currency", right_index=True).rename(columns={start_year: "F", end_year: "F_end"})
     else:
