@@ -9,13 +9,11 @@ st.set_page_config(
     page_icon=":bar_chart:",
 )
 
-uploaded_file = st.file_uploader("Please upload a file", type="csv")
+col1, col2 = st.columns(2)
+uploaded_file = col1.file_uploader("Please upload a file", type="csv")
 if uploaded_file is None:
     uploaded_file = "test_real.csv"
-distinct_currencies = st.checkbox("Data has distinct currencies", False)
-fx_file = None
-if distinct_currencies:
-    fx_file = st.file_uploader("Please upload a FX rate file", type="csv")
+fx_file = col2.file_uploader("Please upload a FX rate file", type="csv")
 if fx_file is None:
     fx_file = "fx_rate.csv"
 first_order_columns = ["Q", "F", "P"]
@@ -27,7 +25,6 @@ if uploaded_file is not None:
     min_year = int(user_df.index.get_level_values("Year").min())
     max_year = int(user_df.index.get_level_values("Year").max())
 
-    col1, col2 = st.columns(2)
     start_year = col1.number_input("Initial year", min_year, max_year - 1)
     end_year = col2.number_input("End year", int(start_year + 1), max_year)
     quantity_effect_split = col1.checkbox("Show mix q effect", False)
