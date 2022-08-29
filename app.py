@@ -29,8 +29,8 @@ if uploaded_file is not None:
 
     start_year = st.number_input("Initial year", min_year, max_year - 1)
     end_year = st.number_input("End year", int(start_year + 1), max_year)
-    quantity_effect_split = st.checkbox("Show mix q effect", True)
-    price_effect_split = st.checkbox("Show mix p effect", True)
+    quantity_effect_split = st.checkbox("Show mix q effect", False)
+    price_effect_split = st.checkbox("Show mix p effect", False)
 
     fx_rate = pd.read_csv(fx_file, index_col="Year")
 
