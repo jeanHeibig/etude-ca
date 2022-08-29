@@ -11,7 +11,7 @@ st.set_page_config(
 
 uploaded_file = st.file_uploader("Please upload a file", type="csv")
 if uploaded_file is None:
-    fx_file = "test_real.csv"
+    uploaded_file = "test_real.csv"
 distinct_currencies = st.checkbox("Data has distinct currencies", False)
 if distinct_currencies:
     fx_file = st.file_uploader("Please upload a FX rate file", type="csv")
