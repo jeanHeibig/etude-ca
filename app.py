@@ -12,15 +12,8 @@ st.set_page_config(
 
 uploaded_file = st.file_uploader("Choose a file", type="csv")
 
-
-def df_prod(df, *c):
-    if c:
-        return df[c[0]] * df_prod(df, *c[1:])
-    else:
-        return 1
-
 df = lambda year: user_df[user_df.index.get_level_values('Year').isin([year])]
-CA = lambda year: df_prod(df(year), "Q", "F", "P").sum()
+CA = lambda year: df(year)[["Q", "F", "P"]].product(axis=1).sum()
 ltr = "Q", "F", "P"
 k = lambda x: [bool(x & (1 << y)) * 'd' + l for y, l in enumerate(ltr)]
 
@@ -33,7 +26,7 @@ if uploaded_file is not None:
     dfi = df(i).droplevel("Year")
     d = (df(f).droplevel("Year") - dfi).rename(columns=lambda x: 'd' + x)
     r = pd.concat((dfi, d), axis=1)
-    dvp = {"".join(k(x)): df_prod(r, *k(x)) for x in range(1 << len(ltr))}
+    dvp = {"".join(k(x)): r[k(x)].product(axis=1) for x in range(1 << len(ltr))}
     balance = dvp["dQdFdP"] + dvp["dQdFP"] + dvp["dQFdP"] + dvp["QdFdP"]
     qte = dvp["dQFP"]
     prix = dvp["QFdP"]
