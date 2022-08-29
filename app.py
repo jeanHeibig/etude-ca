@@ -13,15 +13,22 @@ uploaded_file = st.file_uploader("Please upload a file", type="csv")
 distinct_currencies = st.checkbox("Data has distinct currencies", False)
 if distinct_currencies:
     fx_file = st.file_uploader("Please upload a FX rate file", type="csv")
-start_year = st.number_input("Initial year", 2010, 2024, 2020)
-end_year = st.number_input("End year", start_year + 1, 2025)
-quantity_effect_split = st.checkbox("Show mix q effect", True)
-price_effect_split = st.checkbox("Show mix p effect", True)
+    if fx_file is None:
+        fx_file = "fx_rate.csv"
 first_order_columns = ["Q", "F", "P"]
 k = lambda x: [bool(x & (1 << y)) * 'd' + l for y, l in enumerate(first_order_columns)]
 
-if (uploaded_file is not None) and (not(distinct_currencies) or (fx_file is not None)):
+if uploaded_file is not None:
     user_df = pd.read_csv(uploaded_file, index_col=("Year", "Reference", "Currency")).rename(columns={"Quantity": "Q", "Price": "P"})
+
+    min_year = user_df.index.get_level_values("Year").min()
+    max_year = user_df.index.get_level_values("Year").max()
+
+    start_year = st.number_input("Initial year", min_year, max_year - 1)
+    end_year = st.number_input("End year", start_year + 1, max_year)
+    quantity_effect_split = st.checkbox("Show mix q effect", True)
+    price_effect_split = st.checkbox("Show mix p effect", True)
+
     if distinct_currencies:
         fx_rate = pd.read_csv(fx_file, index_col="Year")
 
