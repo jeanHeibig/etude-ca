@@ -10,7 +10,9 @@ st.set_page_config(
 )
 
 uploaded_file = st.file_uploader("Please upload a file", type="csv")
-fx_file = st.file_uploader("Please upload a FX rate file", type="csv")
+distinct_currencies = st.checkbox("Data has distinct currencies", False)
+if distinct_currencies:
+    fx_file = st.file_uploader("Please upload a FX rate file", type="csv")
 start_year = st.number_input("Initial year", 2010, 2024, 2020)
 end_year = st.number_input("End year", start_year + 1, 2025)
 quantity_effect_split = st.checkbox("Show mix q effect", True)
@@ -18,14 +20,19 @@ price_effect_split = st.checkbox("Show mix p effect", True)
 first_order_columns = ["Q", "F", "P"]
 k = lambda x: [bool(x & (1 << y)) * 'd' + l for y, l in enumerate(first_order_columns)]
 
-if (uploaded_file is not None) and (fx_file is not None):
-    user_df = pd.read_csv(uploaded_file, index_col=("Year", "Reference", "Currency"))
-    fx_rate = pd.read_csv(fx_file, index_col="Year")
+if (uploaded_file is not None) and (not(distinct_currencies) or (fx_file is not None)):
+    user_df = pd.read_csv(uploaded_file, index_col=("Year", "Reference", "Currency")).rename(columns={"Quantity": "Q", "Price": "P"})
+    if distinct_currencies:
+        fx_rate = pd.read_csv(fx_file, index_col="Year")
 
     user_df_by_year = lambda year: user_df[user_df.index.get_level_values('Year').isin([year])]
 
     merged_start_and_end = pd.merge(user_df_by_year(start_year).droplevel("Year"), user_df_by_year(end_year).droplevel("Year"), 'outer', on=["Reference", "Currency"], suffixes=("", "_end"))
-    merged_currencies = pd.merge(merged_start_and_end, fx_rate.T[[start_year, end_year]], how="left", left_on="Currency", right_index=True).rename(columns={start_year: "F", end_year: "F_end"})
+    if distinct_currencies:
+        merged_currencies = pd.merge(merged_start_and_end, fx_rate.T[[start_year, end_year]], how="left", left_on="Currency", right_index=True).rename(columns={start_year: "F", end_year: "F_end"})
+    else:
+        merged_start_and_end[["F", "F_end"]] = 1
+        merged_currencies = merged_start_and_end
     filled_start_and_end = merged_currencies.fillna({"P_end": merged_currencies["P"], "Q_end": 0, "P": merged_currencies["P_end"], "Q": 0})
 
     df_start = filled_start_and_end[first_order_columns]
@@ -73,7 +80,7 @@ if (uploaded_file is not None) and (fx_file is not None):
         "inflation": "Inflation",
         "balance": "Croisé"
     }
-    selected_effects = [*(["inflation", "mix p"] if price_effect_split else ["price"]), "currency", *(["volume", "mix q"] if quantity_effect_split else ["quantity"]), "balance"]
+    selected_effects = [*(["inflation", "mix p"] if price_effect_split else ["price"]), *(["currency"] if distinct_currencies else []), *(["volume", "mix q"] if quantity_effect_split else ["quantity"]), "balance"]
     final_array_to_plot = np.array([CA_start, *[effect_values[effect] for effect in selected_effects], CA_end])
     ticks = [f"$CA_{{{start_year}}}$", *[effect_ticks[effect] for effect in selected_effects], f"$CA_{{{end_year}}}$"]
 
