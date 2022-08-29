@@ -4,13 +4,13 @@ import pandas as pd
 import streamlit as st
 
 
-# Set Streamlit config
 st.set_page_config(
     page_title="Etude du CA",
     page_icon=":bar_chart:",
 )
 
 uploaded_file = st.file_uploader("Please upload a file", type="csv")
+fx_file = st.file_uploader("Please upload a FX rate file", type="csv")
 start_year = st.number_input("Initial year", 2010, 2024, 2020)
 end_year = st.number_input("End year", start_year + 1, 2025)
 quantity_effect_split = st.checkbox("Show mix q effect", True)
@@ -18,17 +18,21 @@ price_effect_split = st.checkbox("Show mix p effect", True)
 first_order_columns = ["Q", "F", "P"]
 k = lambda x: [bool(x & (1 << y)) * 'd' + l for y, l in enumerate(first_order_columns)]
 
-if uploaded_file is not None:
+if (uploaded_file is not None) and (fx_file is not None):
     user_df = pd.read_csv(uploaded_file, index_col=("Year", "Reference", "Currency"))
+    fx_rate = pd.read_csv(fx_file, index_col="Year")
 
     user_df_by_year = lambda year: user_df[user_df.index.get_level_values('Year').isin([year])]
-    CA = lambda year: user_df_by_year(year)[first_order_columns].product(axis=1).sum()
 
     merged_start_and_end = pd.merge(user_df_by_year(start_year).droplevel("Year"), user_df_by_year(end_year).droplevel("Year"), 'outer', on=["Reference", "Currency"], suffixes=("", "_end"))
-    filled_start_and_end = merged_start_and_end.fillna({"F_end": merged_start_and_end["F"], "P_end": merged_start_and_end["P"], "Q_end": 0, "F": merged_start_and_end["F_end"], "P": merged_start_and_end["P_end"], "Q": 0})
-    
+    merged_currencies = pd.merge(merged_start_and_end, fx_rate.T[[start_year, end_year]], how="left", left_on="Currency", right_index=True).rename(columns={start_year: "F", end_year: "F_end"})
+    filled_start_and_end = merged_currencies.fillna({"P_end": merged_currencies["P"], "Q_end": 0, "P": merged_currencies["P_end"], "Q": 0})
+
     df_start = filled_start_and_end[first_order_columns]
     df_end = filled_start_and_end[[c + "_end" for c in first_order_columns]].rename(columns=lambda x: x[0])
+
+    CA_start = df_start[first_order_columns].product(axis=1).sum()
+    CA_end = df_end[first_order_columns].product(axis=1).sum()
 
     difference = (df_end - df_start).rename(columns=lambda x: 'd' + x)
     start_and_difference = pd.concat((df_start, difference), axis=1)
@@ -38,7 +42,6 @@ if uploaded_file is not None:
     quantity_effect = developped_product["dQFP"]
     price_effect = developped_product["QFdP"]
     currency_effect = developped_product["QdFP"]
-    
     volume_start = df_start["Q"].sum()
     growth_quantities = (df_end["Q"] / df_start["Q"] * df_start["Q"]).sum() / volume_start - 1 if volume_start else 0
     adjusted_quantities = (1 + growth_quantities) * df_start["Q"] if volume_start else df_end["Q"]
@@ -71,8 +74,8 @@ if uploaded_file is not None:
         "balance": "Croisé"
     }
     selected_effects = [*(["inflation", "mix p"] if price_effect_split else ["price"]), "currency", *(["volume", "mix q"] if quantity_effect_split else ["quantity"]), "balance"]
-    final_array_to_plot = np.array([CA(start_year), *[effect_values[effect] for effect in selected_effects], CA(end_year)])
-    ticks = [f"CA_{start_year}", *[effect_ticks[effect] for effect in selected_effects], f"CA_{end_year}"]
+    final_array_to_plot = np.array([CA_start, *[effect_values[effect] for effect in selected_effects], CA_end])
+    ticks = [f"$CA_{{{start_year}}}$", *[effect_ticks[effect] for effect in selected_effects], f"$CA_{{{end_year}}}$"]
 
     fig = plt.figure()
     ax = fig.add_subplot(111)
