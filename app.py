@@ -24,8 +24,8 @@ k = lambda x: [bool(x & (1 << y)) * 'd' + l for y, l in enumerate(first_order_co
 if uploaded_file is not None:
     user_df = pd.read_csv(uploaded_file, index_col=("Year", "Reference", "Currency")).rename(columns={"Quantity": "Q", "Price": "P"})
 
-    min_year = user_df.index.get_level_values("Year").min()
-    max_year = user_df.index.get_level_values("Year").max()
+    min_year = int(user_df.index.get_level_values("Year").min())
+    max_year = int(user_df.index.get_level_values("Year").max())
 
     col1, col2 = st.columns(2)
     start_year = col1.number_input("Initial year", min_year, max_year - 1)
