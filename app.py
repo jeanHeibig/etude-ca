@@ -10,6 +10,8 @@ st.set_page_config(
 )
 
 uploaded_file = st.file_uploader("Please upload a file", type="csv")
+if uploaded_file is None:
+    fx_file = "test_real.csv"
 distinct_currencies = st.checkbox("Data has distinct currencies", False)
 if distinct_currencies:
     fx_file = st.file_uploader("Please upload a FX rate file", type="csv")
@@ -25,7 +27,7 @@ if uploaded_file is not None:
     max_year = user_df.index.get_level_values("Year").max()
 
     start_year = st.number_input("Initial year", min_year, max_year - 1)
-    end_year = st.number_input("End year", start_year + 1, max_year)
+    end_year = st.number_input("End year", int(start_year + 1), max_year)
     quantity_effect_split = st.checkbox("Show mix q effect", True)
     price_effect_split = st.checkbox("Show mix p effect", True)
 
