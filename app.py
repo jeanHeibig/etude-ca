@@ -27,10 +27,11 @@ if uploaded_file is not None:
     min_year = user_df.index.get_level_values("Year").min()
     max_year = user_df.index.get_level_values("Year").max()
 
-    start_year = st.number_input("Initial year", min_year, max_year - 1)
-    end_year = st.number_input("End year", int(start_year + 1), max_year)
-    quantity_effect_split = st.checkbox("Show mix q effect", False)
-    price_effect_split = st.checkbox("Show mix p effect", False)
+    col1, col2 = st.columns(2)
+    start_year = col1.number_input("Initial year", min_year, max_year - 1)
+    end_year = col2.number_input("End year", int(start_year + 1), max_year)
+    quantity_effect_split = col1.checkbox("Show mix q effect", False)
+    price_effect_split = col2.checkbox("Show mix p effect", False)
 
     fx_rate = pd.read_csv(fx_file, index_col="Year")
 
