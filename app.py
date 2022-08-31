@@ -7,7 +7,7 @@ from analysis import main
 st.set_page_config(
     page_title="Analyse CA - Solstice Lab",
     page_icon=":bar_chart:",
-    layout="wide",
+    layout="centered",
     menu_items={
         'Get Help': 'https://www.solstice-lab.com/contact',
         'About': """
