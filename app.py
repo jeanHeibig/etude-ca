@@ -23,6 +23,7 @@ st.set_page_config(
 st.title("Analyse du Chiffre d'Affaires")
 
 col1, col2 = st.columns(2)
+
 uploaded_file = col1.file_uploader("Veuillez entrer le fichier des ventes", type="csv",
     help="""
         Doit contenir les colonnes :
@@ -35,7 +36,8 @@ uploaded_file = col1.file_uploader("Veuillez entrer le fichier des ventes", type
 )
 if uploaded_file is None:
     # We use a default file with fake data if no file is given by the user.
-    uploaded_file = "test_real.csv"
+    uploaded_file = "default.csv"
+
 fx_file = col2.file_uploader("Taux de change personnalisés", type="csv",
     help="""
         Le ficher doit contenir une ligne d'entête avec le nom des colonnes :
