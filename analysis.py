@@ -4,16 +4,16 @@ import pandas as pd
 import streamlit as st
 
 
-def main(uploaded_file, fx_file):
+def main(sales_file, fx_file):
+    sales_df = pd.read_csv(sales_file, index_col=("Year", "Reference", "Currency")).rename(columns={"Quantity": "Q", "Price": "P"})
+
     col1, col2 = st.columns(2)
 
     first_order_columns = ["Q", "F", "P"]
-    k = lambda x: [bool(x & (1 << y)) * 'd' + l for y, l in enumerate(first_order_columns)]
+    dvp_indices = lambda x: [bool(x & (1 << y)) * 'd' + l for y, l in enumerate(first_order_columns)]
 
-    user_df = pd.read_csv(uploaded_file, index_col=("Year", "Reference", "Currency")).rename(columns={"Quantity": "Q", "Price": "P"})
-
-    min_year = int(user_df.index.get_level_values("Year").min())
-    max_year = int(user_df.index.get_level_values("Year").max())
+    min_year = int(sales_df.index.get_level_values("Year").min())
+    max_year = int(sales_df.index.get_level_values("Year").max())
 
     start_year = col1.number_input("Initial year", min_year, max_year - 1)
     end_year = col2.number_input("End year", int(start_year + 1), max_year)
@@ -22,10 +22,10 @@ def main(uploaded_file, fx_file):
 
     fx_rate = pd.read_csv(fx_file, index_col="Year")
 
-    user_df_by_year = lambda year: user_df[user_df.index.get_level_values('Year').isin([year])]
+    sales_df_by_year = lambda year: sales_df[sales_df.index.get_level_values('Year').isin([year])]
 
-    grouped_start = user_df_by_year(start_year).droplevel("Year").groupby(["Reference", "Currency"]).agg({"P": "mean", "Q": "sum"})
-    grouped_end = user_df_by_year(end_year).droplevel("Year").groupby(["Reference", "Currency"]).agg({"P": "mean", "Q": "sum"})
+    grouped_start = sales_df_by_year(start_year).droplevel("Year").groupby(["Reference", "Currency"]).agg({"P": "mean", "Q": "sum"})
+    grouped_end = sales_df_by_year(end_year).droplevel("Year").groupby(["Reference", "Currency"]).agg({"P": "mean", "Q": "sum"})
     merged_start_and_end = pd.merge(grouped_start, grouped_end, 'outer', on=["Reference", "Currency"], suffixes=("", "_end"))
 
     merged_currencies = pd.merge(merged_start_and_end, fx_rate.T[[start_year, end_year]], how="left", left_on="Currency", right_index=True).rename(columns={start_year: "F", end_year: "F_end"})
@@ -41,7 +41,7 @@ def main(uploaded_file, fx_file):
     difference = (df_end - df_start).rename(columns=lambda x: 'd' + x)
     start_and_difference = pd.concat((df_start, difference), axis=1)
 
-    developped_product = {"".join(k(x)): start_and_difference[k(x)].product(axis=1) for x in range(1 << len(first_order_columns))}
+    developped_product = {"".join(dvp_indices(x)): start_and_difference[dvp_indices(x)].product(axis=1) for x in range(1 << len(first_order_columns))}
     balance = developped_product["dQdFdP"] + developped_product["dQdFP"] + developped_product["dQFdP"] + developped_product["QdFdP"]
     quantity_effect = developped_product["dQFP"]
     price_effect = developped_product["QFdP"]

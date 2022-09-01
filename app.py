@@ -24,7 +24,7 @@ st.title("Analyse du Chiffre d'Affaires")
 
 col1, col2 = st.columns(2)
 
-uploaded_file = col1.file_uploader("Veuillez entrer le fichier des ventes", type="csv",
+sales_file = col1.file_uploader("Veuillez entrer le fichier des ventes", type="csv",
     help="""
         Doit contenir les colonnes :
         1. *Year* : l'année
@@ -34,9 +34,9 @@ uploaded_file = col1.file_uploader("Veuillez entrer le fichier des ventes", type
         5. *Quantity* : la quantité de produits vendus sur l'année
     """
 )
-if uploaded_file is None:
+if sales_file is None:
     # We use a default file with fake data if no file is given by the user.
-    uploaded_file = "default.csv"
+    sales_file = "default.csv"
 
 fx_file = col2.file_uploader("Taux de change personnalisés", type="csv",
     help="""
@@ -53,4 +53,4 @@ if fx_file is None:
     # We use a reference file with 12 currencies from 2019 to 2022.
     fx_file = "fx_rate.csv"
 
-main(uploaded_file, fx_file)
+main(sales_file, fx_file)
