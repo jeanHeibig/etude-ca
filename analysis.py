@@ -125,4 +125,6 @@ def main(sales_file, fx_file):
     ax.set_title(f"Décomposition du Chiffre d'Affaires\nentre l'année {start_year} et l'année {end_year}")
     # ax.set_xlabel("Effets")
     ax.set_ylabel("Montant (€)")
-    st.pyplot(fig)
+
+    _, col_plot, _ = st.columns([1, 2, 1])
+    col_plot.pyplot(fig)
