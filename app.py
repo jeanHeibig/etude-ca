@@ -11,6 +11,23 @@ application = get_wsgi_application()
 
 from django.contrib.auth import authenticate
 
+
+# Set Streamlit config
+st.set_page_config(
+    page_title="Analyse CA - Solstice Lab",
+    page_icon=":bar_chart:",
+    layout="centered",
+    menu_items={
+        'Get Help': 'https://www.solstice-lab.com/contact',
+        'About': """
+            # Analyse du Chiffre d'Affaires
+            
+            Détail des différences de CA entre deux périodes.  
+            [Solstice Lab](https://www.solstice-lab.com/)
+        """
+    }
+)
+
 def check_password():
     """Returns `True` if the user had a correct password."""
 
@@ -46,24 +63,7 @@ def check_password():
         # Password correct.
         return True
 
-
 if check_password():
-    # Set Streamlit config
-    st.set_page_config(
-        page_title="Analyse CA - Solstice Lab",
-        page_icon=":bar_chart:",
-        layout="centered",
-        menu_items={
-            'Get Help': 'https://www.solstice-lab.com/contact',
-            'About': """
-                # Analyse du Chiffre d'Affaires
-                
-                Détail des différences de CA entre deux périodes.  
-                [Solstice Lab](https://www.solstice-lab.com/)
-            """
-        }
-    )
-
     def local_css(file_name):
         with open(file_name) as f:
             st.markdown(f'<style>{f.read()}</style>', unsafe_allow_html=True)
