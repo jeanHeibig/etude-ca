@@ -1,13 +1,13 @@
 import os
 
-from django.core.wsgi import get_wsgi_application
+# from django.core.wsgi import get_wsgi_application
 import streamlit as st
 
 from analysis import main
 
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "config.settings")
 
-application = get_wsgi_application()
+# application = get_wsgi_application()
 
 from django.contrib.auth import authenticate
 
@@ -44,20 +44,14 @@ def check_password():
         else:
             st.session_state["password_correct"] = False
 
-    if "password_correct" not in st.session_state:
-        # First run, show inputs for username + password.
-        st.text_input("Username", on_change=password_entered, key="username")
-        st.text_input(
-            "Password", type="password", on_change=password_entered, key="password"
-        )
-        return False
-    elif not st.session_state["password_correct"]:
+    if "password_correct" not in st.session_state or not st.session_state["password_correct"]:
         # Password not correct, show input + error.
         st.text_input("Username", on_change=password_entered, key="username")
         st.text_input(
             "Password", type="password", on_change=password_entered, key="password"
         )
-        st.error("😕 User not known or password incorrect")
+        if st.session_state["username"] and st.session_state["password"]:
+            st.error("😕 User not known or password incorrect")
         return False
     else:
         # Password correct.
