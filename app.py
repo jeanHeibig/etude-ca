@@ -67,7 +67,7 @@ if check_password():
     # Title
     st.title("Analyse du Chiffre d'Affaires")
 
-    col1, col2 = st.columns(2)
+    col1, col2 = st.sidebar.columns(2)
 
     sales_file = col1.file_uploader("Veuillez entrer le fichier des ventes", type="csv",
         help="""
