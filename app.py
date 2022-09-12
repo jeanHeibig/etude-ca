@@ -67,9 +67,9 @@ if check_password():
     # Title
     st.title("Analyse du Chiffre d'Affaires")
 
-    col1, col2 = st.sidebar.columns(2)
+    sb = st.sidebar()
 
-    sales_file = col1.file_uploader("Veuillez entrer le fichier des ventes", type="csv",
+    sales_file = sb.file_uploader("Veuillez entrer le fichier des ventes", type="csv",
         help="""
             Doit contenir les colonnes :
             1. *Year* : l'année
@@ -83,7 +83,7 @@ if check_password():
         # We use a default file with fake data if no file is given by the user.
         sales_file = "default.csv"
 
-    fx_file = col2.file_uploader("Taux de change personnalisés", type="csv",
+    fx_file = sb.file_uploader("Taux de change personnalisés", type="csv",
         help="""
             Le ficher doit contenir une ligne d'entête avec le nom des colonnes :
             1. *Year* : l'année du taux de conversion pour la ligne

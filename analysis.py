@@ -15,7 +15,7 @@ def main(sales_file, fx_file):
     max_year = int(sales_df.index.get_level_values("Year").max())
 
     # Set two columns for Streamlit
-    col1, col2 = st.sidebar.columns(2)
+    col1, col2, col3 = st.columns([1, 1, 4])
     # Get starting and final years
     start_year = col1.number_input("Initial year", min_year, max_year - 1)
     end_year = col2.number_input("End year", int(start_year + 1), max_year)
@@ -127,5 +127,4 @@ def main(sales_file, fx_file):
     # ax.set_xlabel("Effets")
     ax.set_ylabel("Montant (€)")
 
-    _, col_plot, _ = st.columns([1, 2, 1])
-    col_plot.pyplot(fig)
+    col3.pyplot(fig)
