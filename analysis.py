@@ -17,11 +17,11 @@ def main(sales_file, fx_file):
     # Set two columns for Streamlit
     col1, col2, col3 = st.columns([1, 1, 4])
     # Get starting and final years
-    start_year = col1.number_input("Initial year", min_year, max_year - 1)
-    end_year = col2.number_input("End year", int(start_year + 1), max_year)
+    start_year = col1.number_input("Année initiale", min_year, max_year - 1)
+    end_year = col2.number_input("Année finale", int(start_year + 1), max_year)
     # Get booleans to show mix effects
-    quantity_effect_split = col1.checkbox("Show mix effect for quantities", True)
-    price_effect_split = col2.checkbox("Show mix effect for prices", True)
+    quantity_effect_split = col1.checkbox("Afficher l'effet mix des quantités", True)
+    price_effect_split = col2.checkbox("Afficher l'effet mix des prix", True)
     # Deduce the selected effects given user's inputs
     selected_effects = [*(["inflation_effect", "mix p"] if price_effect_split else ["price"]), "currency", *(["volume", "mix q"] if quantity_effect_split else ["quantity"]), "compensation_term"]
 
