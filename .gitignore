@@ -133,3 +133,4 @@ dmypy.json
 # Ignore test files
 test.csv
 test.ipynb
+effet_mix.xlsx
