@@ -51,7 +51,7 @@ def check_password():
             "Password", type="password", on_change=password_entered, key="password"
         )
         if st.session_state["username"] and st.session_state["password"]:
-            st.error("😕 User not known or password incorrect")
+            st.error("User not known or password incorrect")
         return False
     else:
         # Password correct.
